@@ -90,7 +90,6 @@ function RepositoryList({ showInfo = false }) {
         }
     };
 
-
     const handlePerPageChange = (e) => {
         setPerPage(parseInt(e.target.value));
     };
