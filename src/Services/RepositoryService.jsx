@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Replace with your actual backend API URL
-const API_URL = 'https://localhost:7008/api';
+const API_URL = 'https://githubstartrackerapi.onrender.com/api';
 
 class RepositoryService {
     // Get all repositories with optional filtering
