@@ -28,7 +28,7 @@ function RepositoryList({ showInfo = false }) {
     // Don't automatically fetch on parameter changes to avoid unexpected API calls
     // Instead, rely on the search button click
 
-    const fetchOrgs = async () => {
+    const fetchOrgs = async ({ orgNameParam="",perPageParam=perPage, pageParam=currentPage, sortParam=sortOrder }) => {
         if (!searchTerm.trim()) {
             setError('Please enter an organization name');
             return;
@@ -36,25 +36,25 @@ function RepositoryList({ showInfo = false }) {
 
         setLoading(true);
         setError(null); // Clear previous errors
-        
+
         try {
             // Log the request parameters for debugging
-            console.log("Sending request with params:", {
-                orgName: searchTerm,
-                perPage,
-                page: currentPage,
-                sort: sortOrder.toLowerCase()
-            });
-            
+            // console.log("Sending request with params:", {
+            //     orgName: orgNameParam||searchTerm,
+            //     perPage,
+            //     page,
+            //     sort: sort.toLowerCase()
+            // });
+
             const response = await RepositoryService.getRepositoryByName({
                 orgName: searchTerm,
-                perPage,
-                page: currentPage,
-                sort: sortOrder.toLowerCase()
+                perPage: perPageParam || perPage,
+                page: pageParam || currentPage,
+                sort: sortParam.toLowerCase() || sortOrder.toLowerCase()
             });
-            
+
             console.log("API Response:", response);
-            
+
             if (response && response.data) {
                 // Check if the response has the repositories array
                 if (response.data.repositories) {
@@ -133,10 +133,13 @@ function RepositoryList({ showInfo = false }) {
             </div>
 
             <div className="repository-controls">
-                <div className="pagination-controls">
+                {showInfo && (<div className="pagination-controls">
                     <div className="per-page">
                         <label>No. per Page:</label>
-                        <select value={perPage} onChange={handlePerPageChange}>
+                        <select value={perPage} onChange={(e) => {
+                            handlePerPageChange(e)
+                            fetchOrgs({ perPageParam: e.target.value })
+                        }}>
                             <option value="10">10</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
@@ -145,19 +148,25 @@ function RepositoryList({ showInfo = false }) {
 
                     <div className="page-selector">
                         <label>Page:</label>
-                        <select value={currentPage} onChange={handlePageChange}>
+                        <select value={currentPage} onChange={(e) => {
+                            handlePageChange(e)
+                            fetchOrgs({ pageParam: e.target.value })
+                        }}>
                             {renderPageOptions()}
                         </select>
                     </div>
 
                     <div className="sort-selector">
                         <label>Sort:</label>
-                        <select value={sortOrder} onChange={handleSortChange}>
+                        <select value={sortOrder} onChange={(e) => {
+                            handleSortChange(e)
+                            fetchOrgs({ sortParam: e.target.value })
+                        }}>
                             <option value="Ascending">Ascending</option>
                             <option value="Descending">Descending</option>
                         </select>
                     </div>
-                </div>
+                </div>)}
 
                 <div className="tab-controls">
                     <button
@@ -175,7 +184,7 @@ function RepositoryList({ showInfo = false }) {
                 </div>
             </div>
 
-            <div className="search-box">
+            {!showInfo && (<div className="search-box">
                 <label>Search:</label>
                 <input
                     type="text"
@@ -183,8 +192,8 @@ function RepositoryList({ showInfo = false }) {
                     value={searchTerm}
                     onChange={handleSearchChange}
                 />
-                <button className="search-button" onClick={fetchOrgs}>🔍</button>
-            </div>
+                <button className="search-button" onClick={()=>fetchOrgs({orgNameParam:searchTerm})}>🔍</button>
+            </div>)}
 
             {error && <div className="error-message">{error}</div>}
 

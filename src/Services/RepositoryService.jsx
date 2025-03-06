@@ -23,11 +23,13 @@ class RepositoryService {
 
     // Get a specific repository by name
     async getRepositoryByName(payload = {}) {
-        const { orgName, perPage,
+        const { 
+            orgName, 
+            perPage,
             page,
             sort } = payload
         try {
-            return await axios.get(`${API_URL}/GithubStarTracker/org_repos?orgName=${orgName}`);
+            return await axios.get(`${API_URL}/GithubStarTracker/org_repos?orgName=${orgName}&pageSize=${perPage}&page=${page}&sort=${sort}`);
         } catch (error) {
             this.handleError(error);
             throw error;
